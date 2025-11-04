@@ -26,11 +26,10 @@ public class AdminController {
     }
 
     @PostMapping("/api/admin/company")
-    public ResponseEntity<?> registerUser(@RequestBody @Valid CompanyDTO dto) throws AuthenticationException, CompanyException {
+    public ResponseEntity<?> registerUser(@RequestBody @Valid CompanyDTO dto) throws CompanyException {
 
         String userInitiatedEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
         return companyService.createCompany(dto, userInitiatedEmail);
-
     }
 }
