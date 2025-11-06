@@ -26,7 +26,7 @@ public class AdminController {
     }
 
     @PostMapping("/api/admin/company")
-    public ResponseEntity<?> registerUser(@RequestBody @Valid CompanyDTO dto) throws CompanyException {
+    public ResponseEntity<?> createCompany(@RequestBody @Valid CompanyDTO dto) throws CompanyException {
 
         String userInitiatedEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 

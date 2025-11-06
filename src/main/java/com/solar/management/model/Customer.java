@@ -1,5 +1,6 @@
 package com.solar.management.model;
 
+import com.solar.management.dto.CustomerResponseDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
@@ -30,7 +31,6 @@ public class Customer {
     @Builder.Default
     private List<Project> projects = List.of();
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assigned_installer_id")
-    private User assignedInstaller;
 }
+
+

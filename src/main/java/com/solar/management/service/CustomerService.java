@@ -9,5 +9,5 @@ import org.springframework.stereotype.Service;
 public interface CustomerService {
 
     public ResponseEntity<?> createCustomer(CustomerDTO customerDTO, String userInitiatedEmail) throws CustomerException;
-    public ResponseEntity<?> getCustomers(String userInitiatedEmail) throws CustomerException;
+    public ResponseEntity<?> getCustomers(String name, String email, String companyName, String userInitiatedEmail) throws CustomerException;
 }
