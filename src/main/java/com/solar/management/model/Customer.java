@@ -1,5 +1,6 @@
 package com.solar.management.model;
 
+import com.solar.management.dto.CustomerResponseDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
@@ -29,4 +30,7 @@ public class Customer {
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     private List<Project> projects = List.of();
+
 }
+
+
