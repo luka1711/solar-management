@@ -1,6 +1,5 @@
 package com.solar.management.model;
 
-import com.solar.management.dto.CustomerResponseDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;

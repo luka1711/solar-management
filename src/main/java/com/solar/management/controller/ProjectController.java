@@ -1,7 +1,32 @@
 package com.solar.management.controller;
 
+import com.solar.management.dto.ProjectDTO;
+import com.solar.management.exception.ProjectException;
+import com.solar.management.service.ProjectServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/api/project")
 public class ProjectController {
+
+    private final ProjectServiceImpl projectService;
+    @Autowired
+    public ProjectController(ProjectServiceImpl projectService) {
+        this.projectService = projectService;
+    }
+
+    @PostMapping
+    @PreAuthorize("hasAnyRole('COMPANY_ADMIN','SUPER_ADMIN', 'ENGINEER')")
+    public ResponseEntity<?> createProject(@RequestBody ProjectDTO project, Authentication authentication) throws ProjectException {
+        String userInitiated = authentication.getName();
+
+        return projectService.createProject(project, userInitiated);
+    }
 }
