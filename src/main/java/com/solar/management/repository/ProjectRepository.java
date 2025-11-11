@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
-    Boolean existsByCustomerIdAndAddress(Long customerId, String address);
+    Boolean existsByCustomerIdAndAddressAndCompanyId(Long customerId, String address, Long companyId);
 
 }

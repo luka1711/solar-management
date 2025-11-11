@@ -41,10 +41,6 @@ public class ProjectServiceImpl implements ProjectService {
         else customer = customerRepository.findById(projectDTO.getCustomerId())
                 .orElseThrow(() -> new ProjectException("Customer is not found"));
 
-        if(Boolean.TRUE.equals(projectRepository.existsByCustomerIdAndAddress(projectDTO.getCustomerId(), projectDTO.getAddress()))) {
-            throw new ProjectException("Customer with the project at the same location already exists");
-        }
-
         User user = userRepository.findByEmail(userInitiated)
                 .orElseThrow(() -> new ProjectException("User initiated is not found."));
 
@@ -64,6 +60,10 @@ public class ProjectServiceImpl implements ProjectService {
         }
         else company = companyRepository.findById(user.getCompany().getId())
                 .orElseThrow(() -> new ProjectException("Company with id "+ user.getCompany().getId() +" does not exist"));
+
+        if(Boolean.TRUE.equals(projectRepository.existsByCustomerIdAndAddressAndCompanyId(projectDTO.getCustomerId(), projectDTO.getAddress(), company.getId()))) {
+            throw new ProjectException("Customer with the project at the same location already exists");
+        }
 
         Project project  = Project.builder()
                 .roofAngle(projectDTO.getRoofAngle())
