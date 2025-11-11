@@ -8,6 +8,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface CompanyService {
-    public ResponseEntity<?> createCompany(CompanyDTO company, String userInitiatedEmail) throws CompanyException;
+    ResponseEntity<?> createCompany(CompanyDTO company, String userInitiatedEmail) throws CompanyException;
 
 }

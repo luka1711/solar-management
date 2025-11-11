@@ -27,7 +27,7 @@ public class Project {
     private Double projectCost;
 
     @Enumerated(EnumType.STRING)
-    private ProjectStatus status;
+    private ProjectStatus status = ProjectStatus.CREATED;
 
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -47,4 +47,13 @@ public class Project {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assigned_installer_id")
     private User assignedInstaller;
+
+    private String address;
+    private Double latitude;
+    private Double longitude;
+
+    private Double estimatedDailyKwh;
+    private Double estimatedMonthlyKwh;
+
+
 }
