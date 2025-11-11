@@ -76,7 +76,6 @@ public class ProjectServiceImpl implements ProjectService {
                 .address(projectDTO.getAddress())
                 .latitude(projectDTO.getLatitude())
                 .longitude(projectDTO.getLongitude())
-                .status(ProjectStatus.CREATED)
                 .build();
 
         projectRepository.save(project);
