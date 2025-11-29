@@ -1,8 +1,6 @@
 package com.solar.management.service;
 
-import com.solar.management.dto.ApiResponse;
-import com.solar.management.dto.CustomerResponseDTO;
-import com.solar.management.dto.ProjectDTO;
+import com.solar.management.dto.*;
 import com.solar.management.exception.CustomerException;
 import com.solar.management.exception.ProjectException;
 import com.solar.management.model.*;
@@ -11,9 +9,12 @@ import com.solar.management.repository.CustomerRepository;
 import com.solar.management.repository.ProjectRepository;
 import com.solar.management.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.task.TaskSchedulingProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -22,27 +23,33 @@ public class ProjectServiceImpl implements ProjectService {
     private final CustomerRepository customerRepository;
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
+    private final TaskSchedulingProperties taskSchedulingProperties;
+
     @Autowired
-    public ProjectServiceImpl(ProjectRepository projectRepository, CustomerRepository customerRepository, UserRepository userRepository,
-                              CompanyRepository companyRepository) {
+    public ProjectServiceImpl(ProjectRepository projectRepository,
+                              CustomerRepository customerRepository,
+                              UserRepository userRepository,
+                              CompanyRepository companyRepository, TaskSchedulingProperties taskSchedulingProperties) {
         this.projectRepository = projectRepository;
         this.customerRepository = customerRepository;
         this.userRepository = userRepository;
         this.companyRepository = companyRepository;
+        this.taskSchedulingProperties = taskSchedulingProperties;
     }
 
     @Override
     public ResponseEntity<?> createProject(ProjectDTO projectDTO, String userInitiated) throws ProjectException {
         Company company;
         Customer customer;
+        User user = userRepository.findByEmail(userInitiated)
+                .orElseThrow(() -> new ProjectException("User initiated is not found."));
+
         if(!customerRepository.existsById(projectDTO.getCustomerId())){
             throw new ProjectException("Customer with id "+ projectDTO.getCustomerId() +" does not exist");
         }
         else customer = customerRepository.findById(projectDTO.getCustomerId())
                 .orElseThrow(() -> new ProjectException("Customer is not found"));
 
-        User user = userRepository.findByEmail(userInitiated)
-                .orElseThrow(() -> new ProjectException("User initiated is not found."));
 
         if (user.getRole() == Role.SUPER_ADMIN){
             if(projectDTO.getCompanyId() == null){
@@ -83,6 +90,67 @@ public class ProjectServiceImpl implements ProjectService {
         ApiResponse<String> apiResponse = new ApiResponse<>("ok", "Project created successfully.");
         return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
     }
+
+    @Override
+    public ResponseEntity<?> getProjects(String userInitiated) throws ProjectException {
+        User requester = userRepository.findByEmail(userInitiated)
+                .orElseThrow(() -> new ProjectException("User initiated is not found."));
+
+        AccessScope scope = resolveScope(requester);
+
+        List<Project> projectList = getProjectsByScope(scope, requester);
+
+        List<ProjectResponseDTO> projectResponse = projectList.stream()
+                .map(this::toDto)
+                .toList();
+
+        ApiResponse<List<ProjectResponseDTO>> apiResponse = new ApiResponse<>("ok", projectResponse);
+
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    public AccessScope resolveScope(User user) {
+        return switch (user.getRole()) {
+            case SUPER_ADMIN -> AccessScope.ALL;
+            case COMPANY_ADMIN, ENGINEER -> AccessScope.COMPANY;
+            case INSTALLER -> AccessScope.INSTALLER;
+        };
+    }
+
+    public List<Project> getProjectsByScope(AccessScope scope, User userInitiated){
+
+        if(scope == AccessScope.ALL){
+            return projectRepository.findAll();
+        }
+        else if (scope == AccessScope.COMPANY) {
+            return projectRepository.findByCompanyId(userInitiated.getCompany().getId());
+        }
+        else{
+            return projectRepository.findByAssignedInstallerIdAndCompanyId(userInitiated.getId(), userInitiated.getCompany().getId());
+        }
+    }
+
+    //to map project entity to entity that will be used in response
+    private ProjectResponseDTO toDto(Project project) {
+        return ProjectResponseDTO.builder()
+                .id(project.getId())
+                .roofArea(project.getRoofArea())
+                .roofAngle(project.getRoofAngle())
+                .panelType(project.getPanelType())
+                .panelWatt(project.getPanelWatt())
+                .inverterModel(project.getInverterModel())
+                .expectedProductionKwhYr(project.getExpectedProductionKwhYr())
+                .projectCost(project.getProjectCost())
+                .projectCustomer(CustomerDTO.from(project.getCustomer()))
+                .assignedInstaller(UserDTO.from(project.getAssignedInstaller()))
+                .address(project.getAddress())
+                .latitude(project.getLatitude())
+                .longitude(project.getLongitude())
+                .estimatedDailyKwh(project.getEstimatedDailyKwh())
+                .estimatedMonthlyKwh(project.getEstimatedMonthlyKwh())
+                .build();
+    }
+
 
 }
 

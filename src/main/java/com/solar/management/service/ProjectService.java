@@ -9,6 +9,6 @@ import org.springframework.stereotype.Service;
 public interface ProjectService {
 
     ResponseEntity<?> createProject(ProjectDTO projectDTO, String userInitiated) throws ProjectException;
-
+    ResponseEntity<?> getProjects(String userInitiated) throws ProjectException;
 
 }

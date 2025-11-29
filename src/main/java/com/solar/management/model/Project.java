@@ -27,6 +27,7 @@ public class Project {
     private Double projectCost;
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private ProjectStatus status = ProjectStatus.CREATED;
 
     @Builder.Default
