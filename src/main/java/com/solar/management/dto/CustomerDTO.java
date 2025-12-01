@@ -1,5 +1,6 @@
 package com.solar.management.dto;
 
+import com.solar.management.model.Customer;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -26,4 +27,15 @@ public class CustomerDTO {
     private String email;
 
     private String companyName;
+
+    public static CustomerDTO from(Customer c) {
+        if (c == null) return null;
+        return CustomerDTO.builder()
+                .fullName(c.getFullName())
+                .address(c.getAddress())
+                .phone(c.getPhone())
+                .email(c.getEmail())
+                .companyName(c.getCompany() != null ? c.getCompany().getName() : null)
+                .build();
+    }
 }
