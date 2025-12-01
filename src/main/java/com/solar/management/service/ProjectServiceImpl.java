@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -109,6 +110,32 @@ public class ProjectServiceImpl implements ProjectService {
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
+    @Override
+    public ResponseEntity<?> updateProjectStatus(String userInitiated, Long projectId, ProjectStatusDTO projectStatus) throws ProjectException {
+        User requester = userRepository.findByEmail(userInitiated)
+                .orElseThrow(() -> new ProjectException("User initiated is not found."));
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectException("Project not found."));
+
+        if(validateProjectAccess(requester, project)){
+            if(requester.getRole() == Role.INSTALLER &&
+                    !(projectStatus.getProjectStatus().equals(ProjectStatus.INSTALLING) || projectStatus.getProjectStatus().equals(ProjectStatus.TESTING))){
+                throw new ProjectException("User is INSTALLER and doesn't have permission to do requested updates.");
+            }
+            else{
+                project.setStatus(projectStatus.getProjectStatus());
+                projectRepository.save(project);
+                ApiResponse<String> apiResponse = new ApiResponse<>("ok", "Project updated successfully.");
+                return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+            }
+        }
+        else{
+            throw new ProjectException("User doesn't have access to this project.");
+        }
+
+    }
+
     public AccessScope resolveScope(User user) {
         return switch (user.getRole()) {
             case SUPER_ADMIN -> AccessScope.ALL;
@@ -149,6 +176,19 @@ public class ProjectServiceImpl implements ProjectService {
                 .estimatedDailyKwh(project.getEstimatedDailyKwh())
                 .estimatedMonthlyKwh(project.getEstimatedMonthlyKwh())
                 .build();
+    }
+
+    public boolean validateProjectAccess(User user, Project project) {
+        if (user.getRole() == Role.SUPER_ADMIN) {
+            return true;
+        }
+        else if (user.getRole() == Role.INSTALLER && !Objects.equals(project.getAssignedInstaller().getId(), user.getId())){
+            return false;
+        }
+        else{
+            return Objects.equals(user.getCompany().getId(), project.getCompany().getId());
+        }
+
     }
 
 

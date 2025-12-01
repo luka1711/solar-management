@@ -1,6 +1,7 @@
 package com.solar.management.controller;
 
 import com.solar.management.dto.ProjectDTO;
+import com.solar.management.dto.ProjectStatusDTO;
 import com.solar.management.exception.ProjectException;
 import com.solar.management.service.ProjectServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,5 +33,12 @@ public class ProjectController {
         String userInitiated = authentication.getName();
 
         return projectService.getProjects(userInitiated);
+    }
+
+    @PutMapping("/status/{projectId}")
+    public ResponseEntity<?> updateProject(@RequestBody ProjectStatusDTO projectStatusDTO, @PathVariable Long projectId, Authentication authentication) throws ProjectException {
+        String userInitiated = authentication.getName();
+
+        return projectService.updateProjectStatus(userInitiated, projectId, projectStatusDTO);
     }
 }
