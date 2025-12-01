@@ -35,7 +35,7 @@ public class ProjectController {
         return projectService.getProjects(userInitiated);
     }
 
-    @PutMapping("/status/{projectId}")
+    @PutMapping("/{projectId}/status")
     public ResponseEntity<?> updateProject(@RequestBody ProjectStatusDTO projectStatusDTO, @PathVariable Long projectId, Authentication authentication) throws ProjectException {
         String userInitiated = authentication.getName();
 
