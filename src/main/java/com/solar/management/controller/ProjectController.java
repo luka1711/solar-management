@@ -48,4 +48,19 @@ public class ProjectController {
 
         return projectService.getProjectById(userInitiated, projectId);
     }
+
+    @PutMapping("/{projectId}/installer/{installerId}")
+    public ResponseEntity<?> assignInstaller(@PathVariable Long projectId, @PathVariable Long installerId, Authentication authentication) throws ProjectException {
+        String userInitiated = authentication.getName();
+
+        return projectService.assignInstaller(userInitiated, projectId, installerId);
+    }
+
+    @DeleteMapping("/{projectId}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN')")
+    public ResponseEntity<?> deleteProject(@PathVariable Long projectId, Authentication authentication) throws ProjectException {
+        String userInitiated = authentication.getName();
+
+        return projectService.deleteProject(userInitiated, projectId);
+    }
 }

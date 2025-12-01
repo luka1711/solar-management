@@ -110,6 +110,7 @@ public class ProjectServiceImpl implements ProjectService {
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
+    @Override
     public ResponseEntity<?> getProjectById(String userInitiated, Long projectId) throws ProjectException {
         User requester = userRepository.findByEmail(userInitiated)
                 .orElseThrow(() -> new ProjectException("User initiated is not found"));
@@ -146,11 +147,51 @@ public class ProjectServiceImpl implements ProjectService {
                 return new ResponseEntity<>(apiResponse, HttpStatus.OK);
             }
         }
-        else{
-            throw new ProjectException("User doesn't have access to this project.");
-        }
-
+        else throw new ProjectException("User doesn't have access to this project");
     }
+
+    @Override
+    public ResponseEntity<?> assignInstaller(String userInitiated, Long projectId, Long installerId) throws ProjectException {
+        User requester = userRepository.findByEmail(userInitiated)
+                .orElseThrow(() -> new ProjectException("User initiated is not found."));
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectException("Project with id: " + projectId + " doesn't exist"));
+
+        if(validateProjectAccess(requester, project)){
+            User installer = userRepository.findById(installerId)
+                    .orElseThrow(() -> new ProjectException("Installer with id: " + installerId + " doesn't exist"));
+
+            if(!installer.getCompany().getId().equals(project.getCompany().getId())){
+                throw new ProjectException("Provided installer with id: " + installerId + " is not part of company's project");
+            }
+            else if(installer.getRole().equals(Role.INSTALLER)){
+                project.setAssignedInstaller(installer);
+                projectRepository.save(project);
+                ApiResponse<String> apiResponse = new ApiResponse<>("ok", "Project assigned successfully");
+                return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+            }
+            else throw new ProjectException("Requested user with id: " + installerId +" is not installer");
+
+        }
+        else throw new ProjectException("User does not have access to the requested project");
+    }
+
+    @Override
+    public ResponseEntity<?> deleteProject(String userInitiated, Long projectId) throws ProjectException {
+        User requester = userRepository.findByEmail(userInitiated)
+                .orElseThrow(() -> new ProjectException("User initiated is not found."));
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectException("Project with id: " + projectId + " doesn't exist"));
+
+        if (validateProjectAccess(requester, project)){
+            projectRepository.delete(project);
+            ApiResponse<String> apiResponse = new ApiResponse<>("ok", "Project deleted successfully");
+            return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+        } else throw new ProjectException("User does not have access to the requested project");
+    }
+
 
     public AccessScope resolveScope(User user) {
         return switch (user.getRole()) {
@@ -204,7 +245,6 @@ public class ProjectServiceImpl implements ProjectService {
         else{
             return Objects.equals(user.getCompany().getId(), project.getCompany().getId());
         }
-
     }
 
 
