@@ -36,7 +36,7 @@ public class ProjectController {
     }
 
     @PutMapping("/{projectId}/status")
-    public ResponseEntity<?> updateProject(@RequestBody ProjectStatusDTO projectStatusDTO, @PathVariable Long projectId, Authentication authentication) throws ProjectException {
+    public ResponseEntity<?> updateProjectStatus(@RequestBody ProjectStatusDTO projectStatusDTO, @PathVariable Long projectId, Authentication authentication) throws ProjectException {
         String userInitiated = authentication.getName();
 
         return projectService.updateProjectStatus(userInitiated, projectId, projectStatusDTO);
