@@ -110,13 +110,29 @@ public class ProjectServiceImpl implements ProjectService {
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
+    public ResponseEntity<?> getProjectById(String userInitiated, Long projectId) throws ProjectException {
+        User requester = userRepository.findByEmail(userInitiated)
+                .orElseThrow(() -> new ProjectException("User initiated is not found"));
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectException("Project with id: " + projectId + " doesn't exist"));
+
+        if(validateProjectAccess(requester, project)){
+            ProjectResponseDTO projectResponseDTO = toDto(project);
+
+            ApiResponse<ProjectResponseDTO> apiResponse = new ApiResponse<>("ok", projectResponseDTO);
+            return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+        }
+        else throw new ProjectException("User does not have access to the requested project");
+    }
+
     @Override
     public ResponseEntity<?> updateProjectStatus(String userInitiated, Long projectId, ProjectStatusDTO projectStatus) throws ProjectException {
         User requester = userRepository.findByEmail(userInitiated)
                 .orElseThrow(() -> new ProjectException("User initiated is not found."));
 
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectException("Project not found."));
+                .orElseThrow(() -> new ProjectException("Project with id: " + projectId + " doesn't exist"));
 
         if(validateProjectAccess(requester, project)){
             if(requester.getRole() == Role.INSTALLER &&

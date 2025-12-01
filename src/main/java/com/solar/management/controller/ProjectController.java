@@ -41,4 +41,11 @@ public class ProjectController {
 
         return projectService.updateProjectStatus(userInitiated, projectId, projectStatusDTO);
     }
+
+    @GetMapping("/{projectId}")
+    public ResponseEntity<?> getProjectById(@PathVariable Long projectId, Authentication authentication) throws ProjectException {
+        String userInitiated = authentication.getName();
+
+        return projectService.getProjectById(userInitiated, projectId);
+    }
 }
