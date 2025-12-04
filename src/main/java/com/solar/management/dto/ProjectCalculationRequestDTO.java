@@ -4,14 +4,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 
+import java.util.List;
+
 @Data
 @Builder
 @Getter
 public class ProjectCalculationRequestDTO {
     private double latitude;
     private double longitude;
-    private double roofAngle;
-    private double roofArea;
     private double panelWatt;
     private double systemLoss;
+    private List<RoofSectionDTO> sections;
 }

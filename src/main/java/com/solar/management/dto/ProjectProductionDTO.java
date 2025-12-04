@@ -9,4 +9,6 @@ public class ProjectProductionDTO {
     private double expectedProductionKwhYr;
     private double estimatedDailyKwh;
     private double estimatedMonthlyKwh;
+    private double totalPeakPower;
+    private int totalNumberOfPanels;
 }
