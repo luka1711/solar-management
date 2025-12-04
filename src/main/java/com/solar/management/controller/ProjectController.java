@@ -1,9 +1,11 @@
 package com.solar.management.controller;
 
+import com.solar.management.dto.ProjectCalculationRequestDTO;
 import com.solar.management.dto.ProjectDTO;
 import com.solar.management.dto.ProjectStatusDTO;
 import com.solar.management.exception.ProjectException;
 import com.solar.management.service.ProjectServiceImpl;
+import com.solar.management.service.SolarCalculationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,9 +17,11 @@ import org.springframework.web.bind.annotation.*;
 public class ProjectController {
 
     private final ProjectServiceImpl projectService;
+    private final SolarCalculationService solarCalculationService;
     @Autowired
-    public ProjectController(ProjectServiceImpl projectService) {
+    public ProjectController(ProjectServiceImpl projectService, SolarCalculationService solarCalculationService) {
         this.projectService = projectService;
+        this.solarCalculationService = solarCalculationService;
     }
 
     @PostMapping
@@ -62,5 +66,14 @@ public class ProjectController {
         String userInitiated = authentication.getName();
 
         return projectService.deleteProject(userInitiated, projectId);
+    }
+
+    @PostMapping("/{projectId}/calculation")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'COMPANY_ADMIN')")
+    public ResponseEntity<?> performSolarCalculations(@RequestBody ProjectCalculationRequestDTO projectCalculationRequestDTO, @PathVariable Long projectId, Authentication authentication) throws ProjectException {
+
+        String userInitiated = authentication.getName();
+
+        return solarCalculationService.calculate(userInitiated, projectId, projectCalculationRequestDTO);
     }
 }

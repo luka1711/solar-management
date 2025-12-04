@@ -55,6 +55,7 @@ public class Project {
 
     private Double estimatedDailyKwh;
     private Double estimatedMonthlyKwh;
-
+    private Double totalPeakPower;
+    private Integer totalNumberOfPanels;
 
 }
