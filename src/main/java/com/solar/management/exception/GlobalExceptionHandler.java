@@ -86,4 +86,16 @@ public class GlobalExceptionHandler {
                 .body("{\"error\":\"Token expired or not valid\"}");
     }
 
+    @ExceptionHandler(DocumentException.class)
+    public ResponseEntity<ErrorResponse> handleDocumentException(DocumentException ex, WebRequest req) {
+        ErrorResponse errorDetails = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                req.getDescription(false)
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
 }
