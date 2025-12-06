@@ -17,7 +17,9 @@ import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import java.io.ByteArrayOutputStream;
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class DocumentServiceImpl implements DocumentService {
@@ -79,7 +81,8 @@ public class DocumentServiceImpl implements DocumentService {
         context.setVariable("companyName", project.getCompany().getName());
         context.setVariable("customerName", project.getCustomer().getFullName());
         context.setVariable("customerAddress", project.getCustomer().getAddress());
-        context.setVariable("date", LocalDateTime.now());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        context.setVariable("date", LocalDate.now().format(formatter));
         context.setVariable("totalPeakPower", project.getTotalPeakPower());
         context.setVariable("panelCount", project.getTotalNumberOfPanels());
         context.setVariable("panelWatt", project.getPanelWatt());
@@ -87,7 +90,7 @@ public class DocumentServiceImpl implements DocumentService {
         context.setVariable("yearly", project.getExpectedProductionKwhYr());
         context.setVariable("monthly", project.getEstimatedMonthlyKwh());
         context.setVariable("daily", project.getEstimatedDailyKwh());
-        return templateEngine.process("templates/project-offer-pdf", context);
+        return templateEngine.process("offer-template", context);
 
     }
 }

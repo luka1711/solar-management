@@ -29,6 +29,7 @@ public class ProjectResponseDTO {
 
     private Double estimatedDailyKwh;
     private Double estimatedMonthlyKwh;
+    private Integer totalNumberOfPanels;
 
 
 }

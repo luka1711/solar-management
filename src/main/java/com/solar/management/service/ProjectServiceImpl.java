@@ -232,6 +232,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .longitude(project.getLongitude())
                 .estimatedDailyKwh(project.getEstimatedDailyKwh())
                 .estimatedMonthlyKwh(project.getEstimatedMonthlyKwh())
+                .totalNumberOfPanels(project.getTotalNumberOfPanels())
                 .build();
     }
 
